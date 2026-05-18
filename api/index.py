@@ -59,3 +59,25 @@ def login_with_supabase(payload: LoginRequest):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email atau password salah atau terjadi kesalahan autentikasi."
         )
+    
+@app.post("/create-user")
+def create_user():
+
+    auth_response = supabase.auth.admin.create_user({
+        "email": "kasir@coffee.com",
+        "password": "kasir123",
+        "email_confirm": True
+    })
+
+    user = auth_response.user
+
+    supabase.table("user_profile").insert({
+        "id": user.id,
+        "username": "kasir01",
+        "full_name": "Kasir Coffee",
+        "role": "kasir"
+    }).execute()
+
+    return {
+        "message": "User berhasil dibuat"
+    }
