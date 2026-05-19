@@ -25,8 +25,11 @@ app.add_middleware(
 
 # 2. INISIALISASI SUPABASE CLIENT
 # PENTING: Gunakan SERVICE_ROLE_KEY agar bisa melakukan bypass RLS database, create, update, dan delete user auth.
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ghowabpmxojzlbbskbzn.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "ISI_DENGAN_SERVICE_ROLE_KEY_ANDA")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("SUPABASE_URL dan SUPABASE_KEY harus diatur dalam environment variables")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
