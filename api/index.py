@@ -2,16 +2,16 @@ from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr, Field
 from supabase import create_client, Client
+from typing import Optional
 import os
 
 app = FastAPI(
-    title="Management Kasir API",
-    description="Backend API untuk sistem management kasir menggunakan FastAPI dan Supabase Auth",
-    version="1.0.0"
+    title="Management Karyawan API",
+    description="Backend API untuk sistem management karyawan menggunakan FastAPI dan Supabase Auth",
+    version="1.1.0"
 )
 
 # 1. KONFIGURASI CORS
-# Memastikan Next.js (baik lokal maupun produksi di Vercel) dapat mengakses API ini
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -24,13 +24,9 @@ app.add_middleware(
 )
 
 # 2. INISIALISASI SUPABASE CLIENT
-# PENTING: SUPABASE_KEY harus menggunakan SERVICE_ROLE_KEY (Secret Key) 
-# agar fungsi admin.create_user dapat berjalan tanpa hambatan RLS atau konfirmasi email.
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY") # Gunakan service_role_key agar bisa create-user
-
-if not SUPABASE_URL or SUPABASE_KEY == "ISI_DENGAN_SERVICE_ROLE_KEY_ANDA":
-    print("PERINGATAN: Pastikan Anda telah mengatur SUPABASE_URL dan SUPABASE_KEY (Service Role) dengan benar!")
+# PENTING: Gunakan SERVICE_ROLE_KEY agar bisa melakukan bypass RLS database, create, update, dan delete user auth.
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ghowabpmxojzlbbskbzn.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "ISI_DENGAN_SERVICE_ROLE_KEY_ANDA")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
