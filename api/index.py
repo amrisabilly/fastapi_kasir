@@ -108,12 +108,15 @@ def login_with_username(payload: LoginWithUsernameRequest):
     print(f"DEBUG: Login attempt - Username: {payload.username}")
     try:
         # 1. Cari user berdasarkan username dari tabel user_profile
+        print(f"DEBUG: Searching for username '{payload.username}' in user_profile table")
         response = get_supabase().table("user_profile") \
-            .select("id, full_name, role") \
+            .select("id, full_name, role, username") \
             .eq("username", payload.username) \
             .execute()
         
+        print(f"DEBUG: Query result - {response.data}")
         if not response.data or len(response.data) == 0:
+            print(f"DEBUG: Username '{payload.username}' tidak ditemukan di database")
             raise HTTPException(
                 status_code=401,
                 detail="Username atau password salah."
@@ -121,18 +124,23 @@ def login_with_username(payload: LoginWithUsernameRequest):
         
         user_profile = response.data[0]
         user_id = user_profile["id"]
+        print(f"DEBUG: Found user_id: {user_id}")
         
         # 2. Dapatkan email dari Supabase Auth menggunakan user_id
+        print(f"DEBUG: Getting email from Supabase Auth for user_id: {user_id}")
         auth_user = get_supabase().auth.admin.get_user(user_id)
         email = auth_user.user.email if auth_user.user else None
+        print(f"DEBUG: Email from Auth: {email}")
         
         if not email:
+            print(f"DEBUG: Email tidak ditemukan untuk user_id {user_id}")
             raise HTTPException(
                 status_code=401,
                 detail="Username atau password salah."
             )
         
         # 3. Autentikasi menggunakan email dan password ke Supabase
+        print(f"DEBUG: Attempting to sign in with email: {email}")
         auth_response = get_supabase().auth.sign_in_with_password({
             "email": email,
             "password": payload.password
@@ -164,6 +172,8 @@ def login_with_username(payload: LoginWithUsernameRequest):
     except HTTPException:
         raise
     except Exception as e:
+        print(f"DEBUG: Exception occurred - {str(e)}")
+        print(f"DEBUG: Exception type - {type(e).__name__}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Username atau password salah."
