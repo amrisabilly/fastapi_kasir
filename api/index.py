@@ -225,7 +225,7 @@ def create_user(payload: CreateUserRequest):
             "username": payload.username,
             "full_name": payload.full_name,
             "role": role_lower,
-            "cafe_id": payload.cafe_id or ""
+            "cafe_id": payload.cafe_id  # Akan None jika tidak diisi (untuk manager)
         }
         get_supabase().table("user_profile").insert(profile_data).execute()
 
@@ -236,7 +236,7 @@ def create_user(payload: CreateUserRequest):
                 "user_id": user.id,
                 "username": payload.username,
                 "role": role_lower,
-                "cafe_id": payload.cafe_id or ""
+                "cafe_id": payload.cafe_id
             }
         }
     except HTTPException as http_e:
