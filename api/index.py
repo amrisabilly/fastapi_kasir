@@ -238,34 +238,21 @@ def create_user(payload: CreateUserRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-# 6B. ENDPOINT: GET EMPLOYEES BERDASARKAN CAFE_ID
-@app.get("/api/users", summary="Mengambil data Supervisor dan Kasir berdasarkan Cafe ID")
+@app.get("/api/users")
 def get_employees(cafe_id: str):
     try:
-        # Ambil semua karyawan yang berada di cafe_id tersebut
         response = get_supabase().table("user_profile") \
             .select("*") \
             .eq("cafe_id", cafe_id) \
             .execute()
-        
-        if not response.data:
-            return {"status": "success", "data": []}
-        
-        # Saring data untuk menampilkan hanya supervisor dan kasir
+            
         filtered_data = [
             emp for emp in response.data 
             if emp.get("role", "").lower() in ["supervisor", "kasir"]
         ]
-        
-        return {
-            "status": "success",
-            "data": filtered_data
-        }
+        return {"status": "success", "data": filtered_data}
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Gagal mengambil data karyawan: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # 7. ENDPOINT: EDIT DATA KARYAWAN
@@ -325,3 +312,11 @@ def delete_employee(user_id: str):
             status_code=400,
             detail=f"Gagal menghapus akun: {str(e)}"
         )
+    
+@app.get("/api/cafes", summary="Mengambil daftar kafe/cabang milik seorang Manager")
+def get_manager_cafes(manager_id: str):
+    try:
+        response = get_supabase().table("cafes").select("*").eq("manager_id", manager_id).execute()
+        return {"status": "success", "data": response.data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
