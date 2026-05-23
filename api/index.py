@@ -5,8 +5,7 @@ from supabase import create_client, Client
 from typing import Optional  # Diperlukan agar tidak terjadi error NameError di Vercel
 import os
 from fastapi import Header
-from routes import menu_router
-from routes import kategori_router
+from .routes import menu_router, kategori_router
 
 
 app = FastAPI(
